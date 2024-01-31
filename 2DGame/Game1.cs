@@ -8,6 +8,8 @@ using System.Linq;
 using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Content;
+using MonoGame.Extended;
+using _2DGame.Helpers;
 
 namespace _2DGame
 {
@@ -20,7 +22,6 @@ namespace _2DGame
 
         //Own
         private readonly Player Player = new();
-        private Texture2D PlayerTexture;
 
         private Texture2D EnemyTexture;
 
@@ -43,8 +44,6 @@ namespace _2DGame
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
             base.Initialize();
         }
 
@@ -53,17 +52,18 @@ namespace _2DGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             EnemyTexture = Content.Load<Texture2D>("enemy_dummy");
-            PlayerTexture = Content.Load<Texture2D>("player");
 
             spriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
-            GVars.sprite = new AnimatedSprite(spriteSheet);
+            GVars.PlayerSprite = new AnimatedSprite(spriteSheet);
+            GVars.PlayerSprite.Play("downStand");
 
             GVars.GrassTexture = Content.Load<Texture2D>("grasstile");
             GVars.WallTexture = Content.Load<Texture2D>("walltile");
 
-            //Creating random map
+            // Creating random map
             //GVars.RndMap = new(GrassTexture, WallTexture, 1, rnd: true);
 
+            // Creating maps from map files
             GVars.Map1 = new(GrassTexture, WallTexture, 1);
             //GVars.Map2 = new(GrassTexture, WallTexture, 2);
             //GVars.Map3 = new(GrassTexture, WallTexture, 3);
@@ -74,28 +74,43 @@ namespace _2DGame
             //GVars.Map8 = new(GrassTexture, WallTexture, 8);
             //GVars.Map9 = new(GrassTexture, WallTexture, 9);
             //GVars.Map10 = new(GrassTexture, WallTexture, 10);
-            
+
             GVars.CurrentMap = GVars.Map1;
-            
 
             font = Content.Load<SpriteFont>("font");
+
+            FightHelper.Player = Player;
         }
 
-        float elapsesTime = 0.0f;
+
+        private float elapsedTime = 0.0f;
 
         protected override void Update(GameTime gameTime)
         {
-            KeyboardState keyboardState = Keyboard.GetState();
-            GVars.time = gameTime;
-            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-            elapsesTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (elapsesTime >= 0.3f)
+            if (!Player.Alive)
             {
-              Player.MovePlayer(GVars.CurrentMap, keyboardState);
-              elapsesTime = 0.0f;
+                throw new System.Exception("You are dead. Not big suprice.");
             }
-              GVars.sprite.Update(gameTime);
+
+            if (Player.InFight)
+            {
+                FightHelper.NextBlow();
+                return;
+            }
+
+            KeyboardState keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
+
+            // Movement
+            elapsedTime += gameTime.GetElapsedSeconds();
+
+            if (elapsedTime >= 0.3f)
+            {
+                Player.MovePlayer(GVars.CurrentMap, keyboardState);
+                elapsedTime = 0.0f;
+            }
+
+            GVars.PlayerSprite.Update(gameTime);
 
             Player.MakeDamage(Player.PositionIndex, keyboardState);
 
@@ -108,25 +123,22 @@ namespace _2DGame
 
             _spriteBatch.Begin();
 
-            // Draw the grid
+            // Draw the Map
             GVars.CurrentMap.DrawMap(_spriteBatch);
 
-            // Draw the player
-            //_spriteBatch.Draw(PlayerTexture, Player.VecPosition, Color.White);
-
+            // Draw enemies
             foreach (Enemy item in GVars.CurrentMap.Enemies.Where(x => x.Alive))
             {
                 _spriteBatch.Draw(EnemyTexture, item.VecPosition, Color.White);
             }
 
-            //_spriteBatch.Draw(PlayerTexture, Player.VecPosition, Color.White);
+            // Draw animated Player
+            GVars.PlayerSprite.Draw(_spriteBatch, Player.VecPosition + new Vector2(32, 25), 0f, new Vector2(1.4f, 1.4f));
 
+            // Debug text
             string debugText = $"x: {Player.XPos}, y: {Player.YPos}";
             _spriteBatch.DrawString(font, debugText, new Vector2(10, 10), Color.White);
-
-            //Animated Player
-            GVars.sprite.Draw(_spriteBatch, Player.VecPosition + new Vector2(32,25), 0f, new Vector2(1.4f, 1.4f));
-
+            
             _spriteBatch.End();
 
             base.Draw(gameTime);

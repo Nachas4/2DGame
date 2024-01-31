@@ -2,15 +2,13 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Sprites;
-using System.Collections.Generic;
 
 namespace _2DGame.Content.Globals
 {
     public static class GVars
     {
         public static Map CurrentMap;
-        public static AnimatedSprite sprite;
-        public static GameTime time;
+        public static AnimatedSprite PlayerSprite;
 
         public static Map RndMap;
 
@@ -27,5 +25,9 @@ namespace _2DGame.Content.Globals
         public static Map Map8;
         public static Map Map9;
         public static Map Map10;
+
+
+
+        
     }
 }

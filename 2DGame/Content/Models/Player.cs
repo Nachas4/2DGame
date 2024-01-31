@@ -1,7 +1,6 @@
 ﻿using _2DGame.Content.Globals;
 using _2DGame.Content.Models;
 using _2DGame.Models;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Linq;
@@ -10,21 +9,28 @@ namespace Content.Models
 {
     public class Player : Base
     {
-        private static bool WkeyUp = true;
-        private static bool AkeyUp = true;
-        private static bool SkeyUp = true;
-        private static bool DkeyUp = true;
-        private static bool SpacekeyUp = true;
+        private bool SpacekeyUp;
+        public bool InFight;
 
         public Player() : base()
         {
-            Hp = 65;
-            Attack = 7;
+            SpacekeyUp = true;
         }
 
-        public void TakeDamage(int dmg)
+        public void TakeDamage(Enemy attacker)
         {
-            Hp -= dmg;
+            if (!Alive) return;
+
+            int dmg = attacker.Attack + D6 * D6;
+
+            if (dmg > Defense)
+            {
+                Hp -= dmg - Defense;
+
+                //Player dies
+                if (Hp < 0)
+                    Alive = !Alive;
+            }
         }
 
         public void MakeDamage(int playerPos, KeyboardState keyboardState)
@@ -38,7 +44,7 @@ namespace Content.Models
             {
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                     int[] attackedTiles = new int[]
+                    int[] attackedTiles = new int[]
                     {
                         //Left and right
                         playerPos - 1,
@@ -55,11 +61,11 @@ namespace Content.Models
                         playerPos + 13,
                     };
 
-                    var bruh = GVars.CurrentMap.Enemies.Where(x => attackedTiles.Contains(x.PositionIndex));
+                    var enemiesInVicinity = GVars.CurrentMap.Enemies.Where(x => attackedTiles.Contains(x.PositionIndex));
 
-                    foreach (Enemy enemy in bruh)
+                    foreach (Enemy enemy in enemiesInVicinity)
                     {
-                        enemy.TakeDamage(Attack);
+                        enemy.TakeDamage(this);
                     }
 
                     SpacekeyUp = false;
@@ -70,64 +76,65 @@ namespace Content.Models
 
         public void MovePlayer(Map map, KeyboardState keyboardState)
         {
-
             //W key
-            if (keyboardState.IsKeyUp(Keys.W))
+            if (keyboardState.IsKeyDown(Keys.W) && map.Tiles[PositionIndex - 12].Sprite.Name == "grasstile")
             {
-                WkeyUp = true;
-            }
-            if (true)
-            {
-                if (keyboardState.IsKeyDown(Keys.W) && map.Tiles[PositionIndex - 12].Sprite.Name == "grasstile")
+
+                VecPosition.Y = Math.Max(0, VecPosition.Y - GVars.CurrentMap.TileSize);
+
+                XPos -= 1;
+                GVars.PlayerSprite.Play("up");
+
+                if (keyboardState.IsKeyUp(Keys.W))
                 {
-     
-                    GVars.sprite.Play("up");
-                    VecPosition.Y = Math.Max(0, VecPosition.Y - GVars.CurrentMap.TileSize);
-            
-                    WkeyUp = false;
-                    XPos -= 1;
+                    GVars.PlayerSprite.Play("upStand");
                 }
             }
 
 
+
             //A key
-            if (keyboardState.IsKeyUp(Keys.A)) AkeyUp = true;
-            if (true)
+            if (keyboardState.IsKeyDown(Keys.A) && map.Tiles[PositionIndex - 1].Sprite.Name == "grasstile")
             {
-                if (keyboardState.IsKeyDown(Keys.A) && map.Tiles[PositionIndex - 1].Sprite.Name == "grasstile")
+                VecPosition.X = Math.Max(0, VecPosition.X - GVars.CurrentMap.TileSize);
+
+                YPos -= 1;
+                GVars.PlayerSprite.Play("left");
+
+                if (keyboardState.IsKeyUp(Keys.A))
                 {
-                    VecPosition.X = Math.Max(0, VecPosition.X - GVars.CurrentMap.TileSize);
-                    AkeyUp = false;
-                    YPos -= 1;
-                    GVars.sprite.Play("left");
+                    GVars.PlayerSprite.Play("leftStand");
                 }
             }
 
 
             //S key
-            if (keyboardState.IsKeyUp(Keys.S)) SkeyUp = true;
-            if (true)
+            if (keyboardState.IsKeyDown(Keys.S) && map.Tiles[PositionIndex + 12].Sprite.Name == "grasstile")
             {
-                if (keyboardState.IsKeyDown(Keys.S) && map.Tiles[PositionIndex + 12].Sprite.Name == "grasstile")
+                VecPosition.Y = Math.Min((GVars.CurrentMap.Rows - 1) * GVars.CurrentMap.TileSize, VecPosition.Y + GVars.CurrentMap.TileSize);
+
+                XPos += 1;
+                GVars.PlayerSprite.Play("down");
+                
+                if (keyboardState.IsKeyUp(Keys.S))
                 {
-                    VecPosition.Y = Math.Min((GVars.CurrentMap.Rows - 1) * GVars.CurrentMap.TileSize, VecPosition.Y + GVars.CurrentMap.TileSize);
-                    SkeyUp = false;
-                    XPos += 1;
-                    GVars.sprite.Play("down");
+                    GVars.PlayerSprite.Play("downStand");
                 }
             }
 
 
+
             //D key
-            if (keyboardState.IsKeyUp(Keys.D)) DkeyUp = true;
-            if (true)
+            if (keyboardState.IsKeyDown(Keys.D) && map.Tiles[PositionIndex + 1].Sprite.Name == "grasstile")
             {
-                if (keyboardState.IsKeyDown(Keys.D) && map.Tiles[PositionIndex + 1].Sprite.Name == "grasstile")
+                VecPosition.X = Math.Min((GVars.CurrentMap.Columns - 1) * GVars.CurrentMap.TileSize, VecPosition.X + GVars.CurrentMap.TileSize);
+
+                YPos += 1;
+                GVars.PlayerSprite.Play("right");
+
+                if (keyboardState.IsKeyUp(Keys.D))
                 {
-                    VecPosition.X = Math.Min((GVars.CurrentMap.Columns - 1) * GVars.CurrentMap.TileSize, VecPosition.X + GVars.CurrentMap.TileSize);
-                    DkeyUp = false;
-                    YPos += 1;
-                    GVars.sprite.Play("right");
+                    GVars.PlayerSprite.Play("rightStand");
                 }
             }
         }
