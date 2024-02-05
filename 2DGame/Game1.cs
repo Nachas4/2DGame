@@ -1,38 +1,26 @@
 ﻿using _2DGame.Content.Globals;
-using _2DGame.Content.Models;
-using Content.Models;
+using _2DGame.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Linq;
-using MonoGame.Extended.Sprites;
-using MonoGame.Extended.Serialization;
-using MonoGame.Extended.Content;
 using MonoGame.Extended;
-using _2DGame.Helpers;
+using MonoGame.Extended.Content;
+using MonoGame.Extended.Serialization;
+using MonoGame.Extended.Sprites;
+using System.Linq;
 
 namespace _2DGame
 {
     public class Game1 : Game
     {
-
-        private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private SpriteSheet spriteSheet;
 
         //Own
-        private readonly Player Player = new();
-
-        private Texture2D EnemyTexture;
-
-        private Texture2D GrassTexture;
-        private Texture2D WallTexture;
-
         SpriteFont font;
 
         public Game1()
         {
-            _graphics = new(this)
+            _ = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = 768,
                 PreferredBackBufferHeight = 768,
@@ -51,35 +39,38 @@ namespace _2DGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            EnemyTexture = Content.Load<Texture2D>("enemy_dummy");
 
-            spriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
-            GVars.PlayerSprite = new AnimatedSprite(spriteSheet);
-            GVars.PlayerSprite.Play("downStand");
+            GVars.Player = new();
+            GVars.PlayerSpriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
+            GVars.Player.PlayerSprite = new AnimatedSprite(GVars.PlayerSpriteSheet);
+            GVars.Player.PlayerSprite.Play("downStand");
+
+            GVars.EnemySpriteSheet = Content.Load<SpriteSheet>("enemy.sf", new JsonContentLoader());
+
+            //GVars.EnemyTexture = Content.Load<Texture2D>("enemy_dummy");
+            GVars.BossTexture = Content.Load<Texture2D>("boss");
 
             GVars.GrassTexture = Content.Load<Texture2D>("grasstile");
             GVars.WallTexture = Content.Load<Texture2D>("walltile");
 
             // Creating random map
-            //GVars.RndMap = new(GrassTexture, WallTexture, 1, rnd: true);
+            //GVars.RndMap = new(1, rnd: true);
 
             // Creating maps from map files
-            GVars.Map1 = new(GrassTexture, WallTexture, 1);
-            //GVars.Map2 = new(GrassTexture, WallTexture, 2);
-            //GVars.Map3 = new(GrassTexture, WallTexture, 3);
-            //GVars.Map4 = new(GrassTexture, WallTexture, 4);
-            //GVars.Map5 = new(GrassTexture, WallTexture, 5);
-            //GVars.Map6 = new(GrassTexture, WallTexture, 6);
-            //GVars.Map7 = new(GrassTexture, WallTexture, 7);
-            //GVars.Map8 = new(GrassTexture, WallTexture, 8);
-            //GVars.Map9 = new(GrassTexture, WallTexture, 9);
-            //GVars.Map10 = new(GrassTexture, WallTexture, 10);
+            GVars.Map1 = new(1);
+            //GVars.Map2 = new(2);
+            //GVars.Map3 = new(3);
+            //GVars.Map4 = new(4);
+            //GVars.Map5 = new(5);
+            //GVars.Map6 = new(6);
+            //GVars.Map7 = new(7);
+            //GVars.Map8 = new(8);
+            //GVars.Map9 = new(9);
+            //GVars.Map10 = new(10);
 
             GVars.CurrentMap = GVars.Map1;
 
             font = Content.Load<SpriteFont>("font");
-
-            FightHelper.Player = Player;
         }
 
 
@@ -87,12 +78,12 @@ namespace _2DGame
 
         protected override void Update(GameTime gameTime)
         {
-            if (!Player.Alive)
+            if (!GVars.Player.Alive)
             {
                 throw new System.Exception("You are dead. Not big suprice.");
             }
 
-            if (Player.InFight)
+            if (GVars.Player.InFight)
             {
                 FightHelper.NextBlow();
                 return;
@@ -106,13 +97,20 @@ namespace _2DGame
 
             if (elapsedTime >= 0.3f)
             {
-                Player.MovePlayer(GVars.CurrentMap, keyboardState);
+                GVars.Player.MovePlayer(keyboardState);
                 elapsedTime = 0.0f;
+
+                //Enemies move every second step (logic handled in GVars.Player.MovePlayer())
+                if (GVars.EnemiesShouldMove)
+                    GVars.CurrentMap.MoveEnemies();
             }
 
-            GVars.PlayerSprite.Update(gameTime);
+            GVars.Player.PlayerSprite.Update(gameTime);
+            
+            foreach (var item in GVars.CurrentMap.Enemies.Where(x => x.Alive))
+                item.EnemySprite.Update(gameTime);
 
-            Player.MakeDamage(Player.PositionIndex, keyboardState);
+            FightHelper.CheckForFight();
 
             base.Update(gameTime);
         }
@@ -126,19 +124,24 @@ namespace _2DGame
             // Draw the Map
             GVars.CurrentMap.DrawMap(_spriteBatch);
 
-            // Draw enemies
-            foreach (Enemy item in GVars.CurrentMap.Enemies.Where(x => x.Alive))
+            // Draw animated enemies and boss
+            var enemies = GVars.CurrentMap.Enemies.Where(x => x.Alive).ToList();
+            for (int i = 0; i < enemies.Count; i++)
             {
-                _spriteBatch.Draw(EnemyTexture, item.VecPosition, Color.White);
+                if (enemies[i].IsBoss)
+                    _spriteBatch.Draw(GVars.BossTexture, enemies[i].VecPosition, Color.White);
+                else
+                    enemies[i].EnemySprite.Draw(_spriteBatch, enemies[i].VecPosition + new Vector2(32, 25), 0f, new Vector2(1.4f, 1.4f));
             }
 
             // Draw animated Player
-            GVars.PlayerSprite.Draw(_spriteBatch, Player.VecPosition + new Vector2(32, 25), 0f, new Vector2(1.4f, 1.4f));
+            GVars.Player.PlayerSprite.Draw(_spriteBatch, GVars.Player.VecPosition + new Vector2(32, 25), 0f, new Vector2(1.4f, 1.4f));
 
             // Debug text
-            string debugText = $"x: {Player.XPos}, y: {Player.YPos}";
+            string debugText = $"x: {GVars.Player.XPos}, y: {GVars.Player.YPos}\n" +
+                $"HP: {GVars.Player.Hp}";
             _spriteBatch.DrawString(font, debugText, new Vector2(10, 10), Color.White);
-            
+
             _spriteBatch.End();
 
             base.Draw(gameTime);

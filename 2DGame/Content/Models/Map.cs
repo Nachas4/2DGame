@@ -17,9 +17,9 @@ namespace _2DGame.Content.Models
         private readonly Vector2[,] GridPositions;
         public readonly List<Tile> Tiles = new();
         public readonly List<Enemy> Enemies = new();
-        public readonly List<string[]> spawnPoints = new();
+        public readonly List<string[]> SpawnPoints = new();
 
-        public Map(Texture2D grassTexture, Texture2D wallTexture, int num, bool rnd = false)
+        public Map(int num/*, bool rnd = false*/)
         {
             Rows = 12;
             Columns = 12;
@@ -27,27 +27,32 @@ namespace _2DGame.Content.Models
 
             GridPositions = new Vector2[Rows, Columns];
 
-            //if (rnd) CreateRndMap();
+            //if (rnd) CreateRndMap(); else
             CreateMap(num);
 
             CreateEnemies();
         }
 
+        public void MoveEnemies()
+        {
+
+        }
+
         private void CreateMap(int num)
         {
-            string map = "map"+num+".txt";
+            string mapFile = "map" + num + ".txt";
 
             //Enemy SpawnPoints
-            string cordinates = File.ReadAllLines("map1.txt").First();
+            string[] map = File.ReadAllLines(mapFile);
 
-            foreach (var item in cordinates.Split(';'))
-                spawnPoints.Add(item.Split(','));
+            foreach (var item in map.First().Split(';'))
+                SpawnPoints.Add(item.Split(','));
 
 
             //Tile symbols into one string line
             string text = "";
 
-            foreach (var item in File.ReadAllLines("map1.txt").Skip(1))
+            foreach (var item in map.Skip(1))
                 text += item;
 
 
@@ -77,14 +82,24 @@ namespace _2DGame.Content.Models
 
         private void CreateEnemies()
         {
-            //for (int i = 0; i < new Random().Next(3, 7); i++)
-            //{
-            //    Enemies.Add(new Enemy(spawnPoints[i]));
-            //}
+            Random rnd = new();
 
-            for (int i = 0; i < 6; i++)
+            //int numOfEnemies = rnd.Next(3, 7);
+            int numOfEnemies = 6;
+            int keyHolder = rnd.Next(numOfEnemies + 1);
+            int boss;
+
+            // Making sure the boss isn't the keyholder
+            do boss = rnd.Next(numOfEnemies + 1);
+            while (boss == keyHolder);
+
+            for (int i = 0; i < numOfEnemies; i++)
             {
-                Enemies.Add(new Enemy(spawnPoints[i]));
+                Enemies.Add(new Enemy(SpawnPoints[i],
+                    isBoss: i == boss,
+                    hasKey: i == keyHolder));
+
+                Enemies[i].EnemySprite.Play("downStand");
             }
         }
 
@@ -103,26 +118,26 @@ namespace _2DGame.Content.Models
         }
 
 
-        private void CreateRndMap()
-        {
-            Random rnd = new();
+        //private void CreateRndMap()
+        //{
+        //    Random rnd = new();
 
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Columns; j++)
-                {
-                    if (i == 0 || i == 11 || j == 0 || j == 11)
-                    {
-                        Tiles.Add(new Tile(GVars.WallTexture, Tiles.Count));
-                    }
-                    else
-                    {
-                        Tiles.Add(new Tile(rnd.Next(1, 6) == 1 ? GVars.WallTexture : GVars.GrassTexture,
-                                Tiles.Count));
-                    }
-                    GridPositions[i, j] = new Vector2(j * TileSize, i * TileSize);
-                }
-            }
-        }
+        //    for (int i = 0; i < Rows; i++)
+        //    {
+        //        for (int j = 0; j < Columns; j++)
+        //        {
+        //            if (i == 0 || i == 11 || j == 0 || j == 11)
+        //            {
+        //                Tiles.Add(new Tile(GVars.WallTexture, Tiles.Count));
+        //            }
+        //            else
+        //            {
+        //                Tiles.Add(new Tile(rnd.Next(1, 6) == 1 ? GVars.WallTexture : GVars.GrassTexture,
+        //                        Tiles.Count));
+        //            }
+        //            GridPositions[i, j] = new Vector2(j * TileSize, i * TileSize);
+        //        }
+        //    }
+        //}
     }
 }
