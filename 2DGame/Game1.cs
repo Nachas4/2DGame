@@ -40,7 +40,6 @@ namespace _2DGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
-            GVars.Player = new();
             GVars.PlayerSpriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
             GVars.Player.PlayerSprite = new AnimatedSprite(GVars.PlayerSpriteSheet);
             GVars.Player.PlayerSprite.Play("downStand");
@@ -57,22 +56,13 @@ namespace _2DGame
             //GVars.RndMap = new(1, rnd: true);
 
             // Creating maps from map files
-            GVars.Map1 = new(1);
-            //GVars.Map2 = new(2);
-            //GVars.Map3 = new(3);
-            //GVars.Map4 = new(4);
-            //GVars.Map5 = new(5);
-            //GVars.Map6 = new(6);
-            //GVars.Map7 = new(7);
-            //GVars.Map8 = new(8);
-            //GVars.Map9 = new(9);
-            //GVars.Map10 = new(10);
+            for (int i = 1; i < 11; i++)
+                GVars.Maps.Add(new(i));
 
-            GVars.CurrentMap = GVars.Map1;
+            GVars.CurrentMap = GVars.Maps[GVars.CurrentMapNum];
 
             font = Content.Load<SpriteFont>("font");
         }
-
 
         private float elapsedTime = 0.0f;
 
@@ -107,8 +97,6 @@ namespace _2DGame
                 item.EnemySprite.Update(gameTime);
 
             FightHelper.CheckForFight();
-
-            MapHelper.LoadNextMap(GVars.Player.HasKey && GVars.Player.HasKilledBoss);
 
             base.Update(gameTime);
         }

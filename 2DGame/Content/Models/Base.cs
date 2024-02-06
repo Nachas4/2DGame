@@ -6,7 +6,7 @@ namespace _2DGame.Models
     public class Base
     {
         internal int Hp; //should be protected, set for logging rn
-        protected int MaxHp;
+        internal int MaxHp;
         internal int Attack;
         internal int Defense;
 
@@ -27,15 +27,6 @@ namespace _2DGame.Models
         {
             Level = 1;
             Alive = true;
-
-            //These are defaults for Player
-            D6 = new Random().Next(1, 7);
-
-            //Hp = 20 + 3 * D6;
-            Hp = 1000;
-            MaxHp = Hp;
-            Defense = 2 * D6;
-            Attack = 5 + D6;
         }
 
         public bool TakeDamage(int dmg)

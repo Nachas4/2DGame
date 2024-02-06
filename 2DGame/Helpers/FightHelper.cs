@@ -27,6 +27,8 @@ namespace _2DGame.Helpers
 
                     Player.InFight = false;
                     Player.LevelUp();
+
+                    MapHelper.LoadNextMap(GVars.Player.HasKey && GVars.Player.HasKilledBoss);
                 }
             }
             else

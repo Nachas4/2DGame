@@ -8,18 +8,18 @@ using System.Linq;
 
 namespace _2DGame.Content.Models
 {
-    public class Map
+    internal class Map
     {
-        public int Rows;
-        public int Columns;
-        public int TileSize;
+        internal int Rows;
+        internal int Columns;
+        internal int TileSize;
 
         private readonly Vector2[,] GridPositions;
-        public readonly List<Tile> Tiles = new();
-        public readonly List<Enemy> Enemies = new();
-        public readonly List<string[]> SpawnPoints = new();
+        internal readonly List<Tile> Tiles = new();
+        internal readonly List<Enemy> Enemies = new();
+        internal readonly List<string[]> SpawnPoints = new();
 
-        public Map(int lvl/*, bool rnd = false*/)
+        internal Map(int lvl/*, bool rnd = false*/)
         {
             Rows = 12;
             Columns = 12;
@@ -32,7 +32,7 @@ namespace _2DGame.Content.Models
             CreateEnemies(lvl);
         }
 
-        public void MoveEnemies()
+        internal void MoveEnemies()
         {
             foreach (Enemy enemy in Enemies.Where(x => x.Alive))
             {
@@ -175,7 +175,7 @@ namespace _2DGame.Content.Models
         }
 
 
-        public void DrawMap(SpriteBatch spriteBatch)
+        internal void DrawMap(SpriteBatch spriteBatch)
         {
             int gridNum = 0;
             for (int i = 0; i < Rows; i++)
