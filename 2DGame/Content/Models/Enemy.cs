@@ -5,14 +5,16 @@ using System;
 
 namespace _2DGame.Content.Models
 {
-    public class Enemy : Base
+    internal class Enemy : Base
     {
-        public bool IsBoss { get; private set; }
-        public bool HasKey { get; private set; }
+        internal bool IsBoss { get; private set; }
+        internal bool HasKey { get; private set; }
 
-        public AnimatedSprite EnemySprite { get; private set; }
+        internal AnimatedSprite EnemySprite { get; private set; }
 
-        public Enemy(string[] spawnPos, int mapLvl, bool isBoss = false, bool hasKey = false) : base()
+        internal int LastMove { get; set; } // 0: left -- 1: right -- 2: up -- 3: down
+
+        internal Enemy(string[] spawnPos, int mapLvl, bool isBoss = false, bool hasKey = false) : base()
         {
             IsBoss = isBoss;
 

@@ -85,9 +85,15 @@ namespace _2DGame
             // Movement
             elapsedTime += gameTime.GetElapsedSeconds();
 
-            if (elapsedTime >= 0.3f)
+            if (GVars.MovementDelay)
             {
                 GVars.Player.MovePlayer(keyboardState);
+
+            }
+
+            if (elapsedTime >= 0.3f)
+            {
+                GVars.MovementDelay = true;
                 elapsedTime = 0.0f;
             }
 
@@ -128,6 +134,8 @@ namespace _2DGame
                 $"HP: {GVars.Player.Hp}\n" +
                 $"Level: {GVars.Player.Level}";
             _spriteBatch.DrawString(font, debugText, new Vector2(10, 10), Color.White);
+
+            _spriteBatch.DrawRectangle(new RectangleF(10, 10, 200, 100), Color.SaddleBrown);
 
             _spriteBatch.End();
 

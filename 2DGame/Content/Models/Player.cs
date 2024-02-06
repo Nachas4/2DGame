@@ -48,6 +48,8 @@ namespace Content.Models
                 {
                     PlayerSprite.Play("upStand");
                 }
+
+                GVars.MovementDelay = false;
             }
 
             //A key
@@ -68,6 +70,8 @@ namespace Content.Models
                 {
                     PlayerSprite.Play("leftStand");
                 }
+
+                GVars.MovementDelay = false;
             }
 
             //S key
@@ -88,6 +92,8 @@ namespace Content.Models
                 {
                     PlayerSprite.Play("downStand");
                 }
+
+                GVars.MovementDelay = false;
             }
 
             //D key
@@ -108,6 +114,8 @@ namespace Content.Models
                 {
                     PlayerSprite.Play("rightStand");
                 }
+
+                GVars.MovementDelay = false;
             }
         }
 

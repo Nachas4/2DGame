@@ -37,7 +37,7 @@ namespace _2DGame.Helpers
             PlayerTurn = !PlayerTurn;   
         }
 
-        internal static void CheckForFight() 
+        internal static void CheckForFight()
         {
             Enemy = GVars.CurrentMap.Enemies.Where(x => x.Alive && x.PositionIndex == Player.PositionIndex).FirstOrDefault();
 
