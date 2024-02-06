@@ -12,15 +12,30 @@ namespace _2DGame.Content.Models
 
         public AnimatedSprite EnemySprite { get; private set; }
 
-        public Enemy(string[] spawnPos, bool isBoss = false, bool hasKey = false) : base()
+        public Enemy(string[] spawnPos, int mapLvl, bool isBoss = false, bool hasKey = false) : base()
         {
+            IsBoss = isBoss;
+
             D6 = new Random().Next(1, 7);
 
-            Hp = 2 * Level * D6;
-            Defense = Level / 2 * D6;
-            Attack = Level + D6;
+            int[] lvlSelection = new int[] { mapLvl, mapLvl, mapLvl, mapLvl, mapLvl, mapLvl, mapLvl++, mapLvl++, mapLvl++, mapLvl++, mapLvl + 2 }; // X: 50% -- X + 1: 40% -- X + 2: 10%
+            Level = lvlSelection[new Random().Next(lvlSelection.Length)];
 
-            IsBoss = isBoss;
+            if (isBoss)
+            {
+                Hp = 2 * Level * D6 + D6;
+                MaxHp = Hp;
+                Defense = Level / 2 * D6;
+                Attack = Level + D6 + Level;
+            }
+            else
+            {
+                Hp = 2 * Level * D6;
+                MaxHp = Hp;
+                Defense = Level / 2 * D6;
+                Attack = Level + D6;
+            }
+
             HasKey = hasKey;
 
             //Spawn position
@@ -31,7 +46,7 @@ namespace _2DGame.Content.Models
             VecPosition.X *= YPos;
 
 
-            EnemySprite = new AnimatedSprite(GVars.EnemySpriteSheet);
+            EnemySprite = new AnimatedSprite(GVars.EnemySpriteSheet); //doesn't iterfere with boss sprite
         }
     }
 }

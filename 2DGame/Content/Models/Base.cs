@@ -5,23 +5,23 @@ namespace _2DGame.Models
 {
     public class Base
     {
-        public int Hp; //should be protected, set for logging rn
-        public int Attack;
-        public int Defense;
+        internal int Hp; //should be protected, set for logging rn
+        protected int MaxHp;
+        internal int Attack;
+        internal int Defense;
 
-        protected int Level;
+        internal bool Alive;
 
-        public bool Alive;
+        internal int D6;
 
-        public int D6;
-        
+        internal int Level;
 
         //Postions
-        public Vector2 VecPosition = new(64, 64); //Starting square
+        internal Vector2 VecPosition = new(64, 64); //Starting square
 
-        public int XPos = 1; //should be protected, set for logging rn
-        public int YPos = 1;
-        public int PositionIndex { get { return XPos * 12 + YPos; } }
+        internal int XPos = 1; //should be protected, set for logging rn
+        internal int YPos = 1; //should be protected, set for logging rn
+        internal int PositionIndex { get { return XPos * 12 + YPos; } }
 
         public Base()
         {
@@ -33,6 +33,7 @@ namespace _2DGame.Models
 
             //Hp = 20 + 3 * D6;
             Hp = 1000;
+            MaxHp = Hp;
             Defense = 2 * D6;
             Attack = 5 + D6;
         }

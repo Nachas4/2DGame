@@ -19,7 +19,7 @@ namespace _2DGame.Content.Models
         public readonly List<Enemy> Enemies = new();
         public readonly List<string[]> SpawnPoints = new();
 
-        public Map(int num/*, bool rnd = false*/)
+        public Map(int lvl/*, bool rnd = false*/)
         {
             Rows = 12;
             Columns = 12;
@@ -28,19 +28,90 @@ namespace _2DGame.Content.Models
             GridPositions = new Vector2[Rows, Columns];
 
             //if (rnd) CreateRndMap(); else
-            CreateMap(num);
-
-            CreateEnemies();
+            CreateMap(lvl);
+            CreateEnemies(lvl);
         }
 
         public void MoveEnemies()
         {
+            foreach (Enemy enemy in Enemies.Where(x => x.Alive))
+            {
+                int finalDirection = int.MaxValue;
 
+                // Calculate all potential directions
+                int leftIndex = enemy.PositionIndex - 1;
+                int rightIndex = enemy.PositionIndex + 1;
+                int upIndex = enemy.PositionIndex - GVars.CurrentMap.Columns;
+                int downIndex = enemy.PositionIndex + GVars.CurrentMap.Columns;
+
+                List<int> legalDirections = new();
+
+                // Check if player is next to the enemy
+                if (GVars.Player.PositionIndex == leftIndex ||
+                    GVars.Player.PositionIndex == rightIndex ||
+                    GVars.Player.PositionIndex == upIndex ||
+                    GVars.Player.PositionIndex == downIndex)
+                {
+                    // Prioritize attacking if player is adjacent
+                    finalDirection = GVars.Player.PositionIndex;
+                }
+                else
+                {
+                    // Check legality of directions
+                    if (Tiles[leftIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == leftIndex && x.Alive))
+                        legalDirections.Add(leftIndex);
+
+                    if (Tiles[rightIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == rightIndex && x.Alive))
+                        legalDirections.Add(rightIndex);
+
+                    if (Tiles[upIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == upIndex && x.Alive))
+                        legalDirections.Add(upIndex);
+
+                    if (Tiles[downIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == downIndex && x.Alive))
+                        legalDirections.Add(downIndex);
+
+                    // Randomly select a legal direction
+                    if (legalDirections.Any())
+                        finalDirection = legalDirections[new Random().Next(legalDirections.Count)];
+                }
+
+                //Make movement
+                if (finalDirection == leftIndex)
+                {
+                    enemy.VecPosition.X = Math.Max(0, enemy.VecPosition.X - GVars.CurrentMap.TileSize);
+
+                    enemy.YPos -= 1;
+                    enemy.EnemySprite.Play("left"); //boss sprite doesn't change
+                }
+                else if (finalDirection == rightIndex)
+                {
+                    enemy.VecPosition.X = Math.Min((GVars.CurrentMap.Columns - 1) * GVars.CurrentMap.TileSize, enemy.VecPosition.X + GVars.CurrentMap.TileSize);
+
+                    enemy.YPos += 1;
+                    enemy.EnemySprite.Play("right");
+                }
+                else if (finalDirection == upIndex)
+                {
+                    enemy.VecPosition.Y = Math.Max(0, enemy.VecPosition.Y - GVars.CurrentMap.TileSize);
+
+                    enemy.XPos -= 1;
+                    enemy.EnemySprite.Play("up");
+                }
+                else if (finalDirection == downIndex)
+                {
+                    enemy.VecPosition.Y = Math.Min((GVars.CurrentMap.Rows - 1) * GVars.CurrentMap.TileSize, enemy.VecPosition.Y + GVars.CurrentMap.TileSize);
+
+                    enemy.XPos += 1;
+                    enemy.EnemySprite.Play("down");
+                }
+                else
+                    continue;
+            }
         }
 
-        private void CreateMap(int num)
+        private void CreateMap(int lvl)
         {
-            string mapFile = "map" + num + ".txt";
+            string mapFile = $"map{lvl}.txt";
 
             //Enemy SpawnPoints
             string[] map = File.ReadAllLines(mapFile);
@@ -80,22 +151,22 @@ namespace _2DGame.Content.Models
             }
         }
 
-        private void CreateEnemies()
+        private void CreateEnemies(int lvl)
         {
             Random rnd = new();
 
             //int numOfEnemies = rnd.Next(3, 7);
             int numOfEnemies = 6;
-            int keyHolder = rnd.Next(numOfEnemies + 1);
+            int keyHolder = rnd.Next(numOfEnemies);
             int boss;
 
             // Making sure the boss isn't the keyholder
-            do boss = rnd.Next(numOfEnemies + 1);
+            do boss = rnd.Next(numOfEnemies);
             while (boss == keyHolder);
 
             for (int i = 0; i < numOfEnemies; i++)
             {
-                Enemies.Add(new Enemy(SpawnPoints[i],
+                Enemies.Add(new Enemy(SpawnPoints[i], lvl,
                     isBoss: i == boss,
                     hasKey: i == keyHolder));
 

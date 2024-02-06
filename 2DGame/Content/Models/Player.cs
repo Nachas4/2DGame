@@ -8,12 +8,16 @@ namespace Content.Models
 {
     public class Player : Base
     {
-        public AnimatedSprite PlayerSprite;
-        public bool InFight;
+        internal AnimatedSprite PlayerSprite;
+        internal bool InFight;
+
+        internal bool HasKey;
+        internal bool HasKilledBoss;
 
         public Player() : base()
         {
-
+            HasKey = false;
+            HasKilledBoss = false;
         }
 
         public void MovePlayer(KeyboardState keyboardState)
@@ -25,6 +29,12 @@ namespace Content.Models
 
                 XPos -= 1;
                 PlayerSprite.Play("up");
+
+                GVars.EnemiesShouldMove = !GVars.EnemiesShouldMove;
+
+                //Enemies move every second step
+                if (GVars.EnemiesShouldMove)
+                    GVars.CurrentMap.MoveEnemies();
 
                 if (keyboardState.IsKeyUp(Keys.W))
                 {
@@ -40,6 +50,12 @@ namespace Content.Models
                 YPos -= 1;
                 PlayerSprite.Play("left");
 
+                GVars.EnemiesShouldMove = !GVars.EnemiesShouldMove;
+
+                //Enemies move every second step
+                if (GVars.EnemiesShouldMove)
+                    GVars.CurrentMap.MoveEnemies();
+
                 if (keyboardState.IsKeyUp(Keys.A))
                 {
                     PlayerSprite.Play("leftStand");
@@ -53,6 +69,12 @@ namespace Content.Models
 
                 XPos += 1;
                 PlayerSprite.Play("down");
+
+                GVars.EnemiesShouldMove = !GVars.EnemiesShouldMove;
+
+                //Enemies move every second step
+                if (GVars.EnemiesShouldMove)
+                    GVars.CurrentMap.MoveEnemies();
 
                 if (keyboardState.IsKeyUp(Keys.S))
                 {
@@ -70,11 +92,24 @@ namespace Content.Models
 
                 GVars.EnemiesShouldMove = !GVars.EnemiesShouldMove;
 
+                //Enemies move every second step
+                if (GVars.EnemiesShouldMove)
+                    GVars.CurrentMap.MoveEnemies();
+
                 if (keyboardState.IsKeyUp(Keys.D))
                 {
                     PlayerSprite.Play("rightStand");
                 }
             }
+        }
+
+        internal void LevelUp()
+        {
+            Level++;
+
+            MaxHp += D6;
+            Attack += D6;
+            Defense += D6;
         }
     }
 }

@@ -99,10 +99,6 @@ namespace _2DGame
             {
                 GVars.Player.MovePlayer(keyboardState);
                 elapsedTime = 0.0f;
-
-                //Enemies move every second step (logic handled in GVars.Player.MovePlayer())
-                if (GVars.EnemiesShouldMove)
-                    GVars.CurrentMap.MoveEnemies();
             }
 
             GVars.Player.PlayerSprite.Update(gameTime);
@@ -111,6 +107,8 @@ namespace _2DGame
                 item.EnemySprite.Update(gameTime);
 
             FightHelper.CheckForFight();
+
+            MapHelper.LoadNextMap(GVars.Player.HasKey && GVars.Player.HasKilledBoss);
 
             base.Update(gameTime);
         }
@@ -139,7 +137,8 @@ namespace _2DGame
 
             // Debug text
             string debugText = $"x: {GVars.Player.XPos}, y: {GVars.Player.YPos}\n" +
-                $"HP: {GVars.Player.Hp}";
+                $"HP: {GVars.Player.Hp}\n" +
+                $"Level: {GVars.Player.Level}";
             _spriteBatch.DrawString(font, debugText, new Vector2(10, 10), Color.White);
 
             _spriteBatch.End();

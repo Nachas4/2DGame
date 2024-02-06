@@ -36,9 +36,5 @@ namespace _2DGame.Content.Globals
         public static Map Map8;
         public static Map Map9;
         public static Map Map10;
-
-
-
-        
     }
 }

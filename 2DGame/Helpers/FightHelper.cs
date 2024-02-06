@@ -1,7 +1,6 @@
 ﻿using _2DGame.Content.Globals;
 using _2DGame.Content.Models;
 using Content.Models;
-using System;
 using System.Linq;
 
 namespace _2DGame.Helpers
@@ -16,17 +15,24 @@ namespace _2DGame.Helpers
 
         internal static void NextBlow()
         {
-            bool deathOccured;
-
             if (PlayerTurn)
-                deathOccured = Enemy.TakeDamage(Player.Attack + (int)Math.Pow(Player.D6, 2));
+            {
+                bool deathOccured = Enemy.TakeDamage(Player.Attack + Player.D6 * 2);
+
+                if (deathOccured)
+                {
+                    if (Enemy.IsBoss) Player.HasKilledBoss = true;
+                    
+                    if (Enemy.HasKey) Player.HasKey = true;
+
+                    Player.InFight = false;
+                    Player.LevelUp();
+                }
+            }
             else
-                deathOccured = Player.TakeDamage(Enemy.Attack + (int)Math.Pow(Enemy.D6, 2));
+                Player.TakeDamage(Enemy.Attack + Enemy.D6 * 2);
 
-            PlayerTurn = !PlayerTurn;
-
-            if (deathOccured)
-                Player.InFight = false;
+            PlayerTurn = !PlayerTurn;   
         }
 
         internal static void CheckForFight() 
