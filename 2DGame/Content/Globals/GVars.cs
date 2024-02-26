@@ -19,6 +19,11 @@ namespace _2DGame.Content.Globals
 
         internal static SpriteSheet EnemySpriteSheet; 
 
+        internal static Texture2D BlankTexture;
+        internal static Texture2D HealthTexture;
+        internal static Texture2D DefenseTexture;
+        internal static Texture2D LevelTexture;
+
         internal static Texture2D GrassTexture;
         internal static Texture2D WallTexture;
 

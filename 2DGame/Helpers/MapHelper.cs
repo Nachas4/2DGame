@@ -14,10 +14,11 @@ namespace _2DGame.Helpers
             ResetPlayerValues();
 
             //Heal player
+            Random rnd = new();
             int thirdOfHp = GVars.Player.MaxHp / 3;
             int tenthOfHp = GVars.Player.MaxHp / 10;
 
-            GVars.Player.Hp += new int[] { GVars.Player.MaxHp, thirdOfHp, thirdOfHp, thirdOfHp, thirdOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp }[new Random().Next(10)]; // full: 10% -- third: 40% -- tenth: 50%
+            GVars.Player.Hp += new int[] { GVars.Player.MaxHp, thirdOfHp, thirdOfHp, thirdOfHp, thirdOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp, tenthOfHp }[rnd.Next(10)]; // full: 10% -- third: 40% -- tenth: 50%
 
             if (GVars.Player.Hp > GVars.Player.MaxHp) GVars.Player.Hp = GVars.Player.MaxHp;
 

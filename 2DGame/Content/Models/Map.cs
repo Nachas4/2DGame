@@ -36,6 +36,7 @@ namespace _2DGame.Content.Models
         {
             foreach (Enemy enemy in Enemies.Where(x => x.Alive))
             {
+                Random rnd = new();
                 int finalDirection = int.MaxValue;
 
                 // Calculate all potential directions
@@ -43,6 +44,11 @@ namespace _2DGame.Content.Models
                 int rightIndex = enemy.PositionIndex + 1;
                 int upIndex = enemy.PositionIndex - GVars.CurrentMap.Columns;
                 int downIndex = enemy.PositionIndex + GVars.CurrentMap.Columns;
+
+                int left = 0;
+                int right = 1;
+                int up = 2;
+                int down = 3;
 
                 // The bool indicates whether the given move was the last one
                 Dictionary<int, bool> legalDirections = new();
@@ -60,16 +66,16 @@ namespace _2DGame.Content.Models
                 {
                     // Check legality of directions
                     if (Tiles[leftIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == leftIndex && x.Alive))
-                        legalDirections.Add(leftIndex, enemy.LastMove == 1);
+                        legalDirections.Add(leftIndex, enemy.LastMove == right);
 
                     if (Tiles[rightIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == rightIndex && x.Alive))
-                        legalDirections.Add(rightIndex, enemy.LastMove == 0);
+                        legalDirections.Add(rightIndex, enemy.LastMove == left);
 
                     if (Tiles[upIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == upIndex && x.Alive))
-                        legalDirections.Add(upIndex, enemy.LastMove != 3);
+                        legalDirections.Add(upIndex, enemy.LastMove != down);
 
                     if (Tiles[downIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == downIndex && x.Alive))
-                        legalDirections.Add(downIndex, enemy.LastMove != 2);
+                        legalDirections.Add(downIndex, enemy.LastMove != up);
 
                     // If only one movement is available, AND it was the last move, we need to explicitly state that the enemy can move backwards THIS time, otherwise it's stuck
                     if (legalDirections.Count == 1 && legalDirections.ContainsValue(true)) 
@@ -78,12 +84,12 @@ namespace _2DGame.Content.Models
                     {
                         try
                         {
-                            // Remove the last move
+                            // Remove the last move if it exists
                             legalDirections.Remove(legalDirections.First(x => x.Value).Key);
                         } 
                         catch { }
 
-                        finalDirection = legalDirections.ElementAt(new Random().Next(legalDirections.Count)).Key;
+                        finalDirection = legalDirections.ElementAt(rnd.Next(legalDirections.Count)).Key;
                     }
                 }
 
@@ -93,7 +99,7 @@ namespace _2DGame.Content.Models
                     enemy.VecPosition.X = Math.Max(0, enemy.VecPosition.X - GVars.CurrentMap.TileSize);
 
                     enemy.YPos -= 1;
-                    enemy.LastMove = 0;
+                    enemy.LastMove = left;
                     enemy.EnemySprite.Play("left"); //boss sprite doesn't change
                 }
                 else if (finalDirection == rightIndex)
@@ -101,7 +107,7 @@ namespace _2DGame.Content.Models
                     enemy.VecPosition.X = Math.Min((GVars.CurrentMap.Columns - 1) * GVars.CurrentMap.TileSize, enemy.VecPosition.X + GVars.CurrentMap.TileSize);
 
                     enemy.YPos += 1;
-                    enemy.LastMove = 1;
+                    enemy.LastMove = right;
                     enemy.EnemySprite.Play("right");
                 }
                 else if (finalDirection == upIndex)
@@ -109,7 +115,7 @@ namespace _2DGame.Content.Models
                     enemy.VecPosition.Y = Math.Max(0, enemy.VecPosition.Y - GVars.CurrentMap.TileSize);
 
                     enemy.XPos -= 1;
-                    enemy.LastMove = 2;
+                    enemy.LastMove = up;
                     enemy.EnemySprite.Play("up");
                 }
                 else if (finalDirection == downIndex)
@@ -117,7 +123,7 @@ namespace _2DGame.Content.Models
                     enemy.VecPosition.Y = Math.Min((GVars.CurrentMap.Rows - 1) * GVars.CurrentMap.TileSize, enemy.VecPosition.Y + GVars.CurrentMap.TileSize);
 
                     enemy.XPos += 1;
-                    enemy.LastMove = 3;
+                    enemy.LastMove = down;
                     enemy.EnemySprite.Play("down");
                 }
                 else
@@ -127,7 +133,7 @@ namespace _2DGame.Content.Models
 
         private void CreateMap(int lvl)
         {
-            string mapFile = $"map{lvl}.txt";
+            string mapFile = $"Content/Maps/map{lvl}.txt";
 
             //Enemy SpawnPoints
             string[] map = File.ReadAllLines(mapFile);

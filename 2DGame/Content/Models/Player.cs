@@ -16,10 +16,12 @@ namespace Content.Models
 
         public Player() : base()
         {
-            D6 = new Random().Next(1, 7);
+            Random rnd = new();
+
+            D6 = rnd.Next(1, 7);
 
             Hp = 20 + 3 * D6;
-            //Hp = 1000;
+            //Hp = 400;
             MaxHp = Hp;
             Defense = 2 * D6;
             Attack = 5 + D6;

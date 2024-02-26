@@ -16,12 +16,14 @@ namespace _2DGame.Content.Models
 
         internal Enemy(string[] spawnPos, int mapLvl, bool isBoss = false, bool hasKey = false) : base()
         {
+            Random rnd = new();
+
             IsBoss = isBoss;
 
-            D6 = new Random().Next(1, 7);
+            D6 = rnd.Next(1, 7);
 
             int[] lvlSelection = new int[] { mapLvl, mapLvl, mapLvl, mapLvl, mapLvl, mapLvl, mapLvl++, mapLvl++, mapLvl++, mapLvl++, mapLvl + 2 }; // X: 50% -- X + 1: 40% -- X + 2: 10%
-            Level = lvlSelection[new Random().Next(lvlSelection.Length)];
+            Level = lvlSelection[rnd.Next(lvlSelection.Length)];
 
             if (isBoss)
             {

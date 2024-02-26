@@ -1,1 +1,2 @@
-# 2DGame
+# Adventurer Game
+If you run into the error `"The command "dotnet tool restore" exited with code 1."` then go to `2DGame-master\2DGame\.config\dotnet-tools.json`: and do  right click -> properties -> check the `Unblock` labelled checkbox
