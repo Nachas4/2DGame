@@ -2,8 +2,8 @@
 
 ## Before running
 You need to copy some files to the directory `\2DGame\bin\Debug\net6.0-windows\Content` from `\2DGame\Content` like so:
-	- Create `Maps` folder and copy the 10 map files in there
-	- Copy the files `enemy.sf` and `player.sf`
+- Create `Maps` folder and copy the 10 map files in there
+- Copy the files `enemy.sf` and `player.sf`
 
 # Possible errors
 
