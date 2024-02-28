@@ -2,7 +2,6 @@
 using Content.Models;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Sprites;
-using SharpDX.MediaFoundation;
 using System.Collections.Generic;
 
 namespace _2DGame.Content.Globals
@@ -23,6 +22,8 @@ namespace _2DGame.Content.Globals
         internal static Texture2D HealthTexture;
         internal static Texture2D DefenseTexture;
         internal static Texture2D LevelTexture;
+        internal static Texture2D Keyframe;
+        internal static Texture2D Key;
 
         internal static Texture2D GrassTexture;
         internal static Texture2D WallTexture;
@@ -32,20 +33,8 @@ namespace _2DGame.Content.Globals
         // Other logic
         internal static bool EnemiesShouldMove = true; //Is reversed at every player step, enemies move at true
         internal static bool MovementDelay = true;
+        internal static bool YouWon = false;
 
-        // Maps
         //internal static Map RndMap;
-
-        
-        //internal static Map Map1;
-        //internal static Map Map2;
-        //internal static Map Map3;
-        //internal static Map Map4;
-        //internal static Map Map5;
-        //internal static Map Map6;
-        //internal static Map Map7;
-        //internal static Map Map8;
-        //internal static Map Map9;
-        //internal static Map Map10;
     }
 }

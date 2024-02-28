@@ -24,7 +24,14 @@ namespace _2DGame.Helpers
 
             //Load next map
             GVars.CurrentMapNum++;
-            GVars.CurrentMap = GVars.Maps[GVars.CurrentMapNum];
+            try
+            {
+                GVars.CurrentMap = GVars.Maps[GVars.CurrentMapNum];
+            }
+            catch
+            {
+                GVars.YouWon = true;
+            }
         }
 
         private static void ResetPlayerValues()

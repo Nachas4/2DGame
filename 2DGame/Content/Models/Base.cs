@@ -5,7 +5,7 @@ namespace _2DGame.Models
 {
     public class Base
     {
-        internal int Hp; //should be protected, set for logging rn
+        internal int Hp;
         internal int MaxHp;
         internal int Attack;
         internal int Defense;
@@ -19,8 +19,8 @@ namespace _2DGame.Models
         //Postions
         internal Vector2 VecPosition = new(64, 64); //Starting square
 
-        internal int XPos = 1; //should be protected, set for logging rn
-        internal int YPos = 1; //should be protected, set for logging rn
+        internal int XPos = 1; 
+        internal int YPos = 1; 
         internal int PositionIndex { get { return XPos * 12 + YPos; } }
 
         public Base()
@@ -41,6 +41,7 @@ namespace _2DGame.Models
                 if (Hp < 0)
                 {
                     Alive = !Alive;
+                    Hp = 0;
                     return true;
                 }
             }

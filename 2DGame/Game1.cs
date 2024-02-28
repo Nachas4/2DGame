@@ -1,4 +1,5 @@
 ﻿using _2DGame.Content.Globals;
+using _2DGame.Content.Models;
 using _2DGame.Helpers;
 using Content.Models;
 using Microsoft.Xna.Framework;
@@ -9,6 +10,8 @@ using MonoGame.Extended.Content;
 using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Sprites;
 using SharpDX.MediaFoundation;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace _2DGame
@@ -41,12 +44,15 @@ namespace _2DGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-
+            // Loading resources
             GVars.PlayerSpriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
+            GVars.EnemySpriteSheet = Content.Load<SpriteSheet>("enemy.sf", new JsonContentLoader());
+
             GVars.Player.PlayerSprite = new AnimatedSprite(GVars.PlayerSpriteSheet);
             GVars.Player.PlayerSprite.Play("downStand");
 
-            GVars.EnemySpriteSheet = Content.Load<SpriteSheet>("enemy.sf", new JsonContentLoader());
+            GVars.GrassTexture = Content.Load<Texture2D>("grasstile");
+            GVars.WallTexture = Content.Load<Texture2D>("walltile");
 
             //GVars.EnemyTexture = Content.Load<Texture2D>("enemy_dummy");
             GVars.BossTexture = Content.Load<Texture2D>("boss");
@@ -55,9 +61,8 @@ namespace _2DGame
             GVars.HealthTexture = Content.Load<Texture2D>("red");
             GVars.DefenseTexture = Content.Load<Texture2D>("shield");
             GVars.LevelTexture = Content.Load<Texture2D>("level");
-
-            GVars.GrassTexture = Content.Load<Texture2D>("grasstile");
-            GVars.WallTexture = Content.Load<Texture2D>("walltile");
+            GVars.Keyframe = Content.Load<Texture2D>("key-frame");
+            GVars.Key = Content.Load<Texture2D>("skull_key");
 
             // Creating random map
             //GVars.RndMap = new(1, rnd: true);
@@ -75,49 +80,57 @@ namespace _2DGame
 
         protected override void Update(GameTime gameTime)
         {
-            if (!GVars.Player.Alive)
+            //if (GVars.YouWon)
+            //{
+            //    if (keyboardState.IsKeyDown(Keys.Enter)) StartGame();
+            //    return;
+            //}
+
+            if (!GVars.Player.Alive || GVars.YouWon)
             {
-                throw new System.Exception("You are dead. Not big suprice.");
-            }
+                KeyboardState keyboardState = Keyboard.GetState();
+                if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
 
-            if (GVars.Player.InFight)
+                base.Update(gameTime);
+            }
+            else
             {
-                FightHelper.NextBlow();
-                return;
+                if (GVars.Player.InFight)
+                {
+                    FightHelper.NextBlow();
+                    return;
+                }
+
+                KeyboardState keyboardState = Keyboard.GetState();
+                if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
+
+                // Movement
+                elapsedTime += gameTime.GetElapsedSeconds();
+
+                if (GVars.MovementDelay)
+                {
+                    GVars.Player.MovePlayer(keyboardState);
+                }
+
+
+                if (elapsedTime >= 0.3f)
+                {
+                    GVars.MovementDelay = true;
+                    elapsedTime = 0.0f;
+                }
+                FightHelper.CheckForFight();
+
+                GVars.Player.PlayerSprite.Update(gameTime);
+
+                foreach (var item in GVars.CurrentMap.Enemies.Where(x => x.Alive))
+                    item.EnemySprite.Update(gameTime);
             }
-
-            KeyboardState keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-
-            // Movement
-            elapsedTime += gameTime.GetElapsedSeconds();
-
-            if (GVars.MovementDelay)
-            {
-                GVars.Player.MovePlayer(keyboardState);
-            }
-
-
-            if (elapsedTime >= 0.3f)
-            {
-                GVars.MovementDelay = true;
-                elapsedTime = 0.0f;
-            }
-            FightHelper.CheckForFight();
-
-            GVars.Player.PlayerSprite.Update(gameTime);
-            
-            foreach (var item in GVars.CurrentMap.Enemies.Where(x => x.Alive))
-                item.EnemySprite.Update(gameTime);
-
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
             _spriteBatch.Begin();
 
             // Draw the Map
@@ -153,7 +166,7 @@ namespace _2DGame
         private void DrawplayerStats()
         {
             // Draw defense
-            _spriteBatch.Draw(GVars.DefenseTexture, new Rectangle(1,64*11, 64, 64), Color.White);
+            _spriteBatch.Draw(GVars.DefenseTexture, new Rectangle(1, 64 * 11, 64, 64), Color.White);
             _spriteBatch.DrawString(Font, GVars.Player.Defense.ToString(), new Vector2(60, 64 * 11), Color.White);
 
             // Draw level
@@ -168,8 +181,28 @@ namespace _2DGame
             int maxHealthBar = healthUnit * GVars.Player.MaxHp;
             int currentWidth = healthUnit * currentHealth;
 
+            // Draw key
+            _spriteBatch.Draw(GVars.Keyframe, new Rectangle(64 * 11 - 10, 64 * 11, 64, 64), Color.White);
+            if (GVars.Player.HasKey)
+            {
+                _spriteBatch.Draw(GVars.Key, new Rectangle(64 * 11 - 10, 64 * 11, 64, 64), Color.White);
+            }
 
-         
+            if (!GVars.YouWon)
+            {
+                _spriteBatch.DrawString(Font, "You Won", new Vector2(64 * 3 + 64, 64 * 5), Color.Black);
+                //_spriteBatch.DrawString(Font, "Enter to restart", new Vector2(64 * 3 - 32, 64 * 7), Color.Black);
+            }
+
+            if (!GVars.Player.Alive)
+            {
+                _spriteBatch.DrawString(Font, "You are dead", new Vector2(64 * 3, 64 * 5), Color.Black);
+                _spriteBatch.DrawString(Font, "Not big suprice", new Vector2(64 * 3 - 32, 64 * 6), Color.Black);
+                //_spriteBatch.DrawString(Font, "Enter to restart", new Vector2(64 * 3 - 64, 64 * 8), Color.Black);
+            }
+
+            // Map level
+            _spriteBatch.DrawString(Font, "Level " + (GVars.CurrentMapNum + 1), new Vector2(64 * 5 - 32, 64 * 11), Color.Black);
 
             // Draw the filled portion of the health bar
             _spriteBatch.Draw(GVars.HealthTexture, new Rectangle(12, 8, currentWidth, 48), Color.Red);

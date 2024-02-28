@@ -21,7 +21,7 @@ namespace Content.Models
             D6 = rnd.Next(1, 7);
 
             Hp = 20 + 3 * D6;
-            //Hp = 400;
+            //Hp = 1;
             MaxHp = Hp;
             Defense = 2 * D6;
             Attack = 5 + D6;
