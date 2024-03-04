@@ -72,10 +72,10 @@ namespace _2DGame.Content.Models
                         legalDirections.Add(rightIndex, enemy.LastMove == left);
 
                     if (Tiles[upIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == upIndex && x.Alive))
-                        legalDirections.Add(upIndex, enemy.LastMove != down);
+                        legalDirections.Add(upIndex, enemy.LastMove == down);
 
                     if (Tiles[downIndex].Sprite == GVars.GrassTexture && !Enemies.Any(x => x.PositionIndex == downIndex && x.Alive))
-                        legalDirections.Add(downIndex, enemy.LastMove != up);
+                        legalDirections.Add(downIndex, enemy.LastMove == up);
 
                     // If only one movement is available, AND it was the last move, we need to explicitly state that the enemy can move backwards THIS time, otherwise it's stuck
                     if (legalDirections.Count == 1 && legalDirections.ContainsValue(true)) 
