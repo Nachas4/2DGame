@@ -1,17 +1,13 @@
 ﻿using _2DGame.Content.Globals;
-using _2DGame.Content.Models;
 using _2DGame.Helpers;
-using Content.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended;
 using MonoGame.Extended.Content;
 using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Sprites;
-using SharpDX.MediaFoundation;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace _2DGame
@@ -44,6 +40,8 @@ namespace _2DGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            MusicHelper.PlayBgMusic(Content.Load<Song>("music"));
+
             // Loading resources
             GVars.PlayerSpriteSheet = Content.Load<SpriteSheet>("player.sf", new JsonContentLoader());
             GVars.EnemySpriteSheet = Content.Load<SpriteSheet>("enemy.sf", new JsonContentLoader());
@@ -63,6 +61,7 @@ namespace _2DGame
             GVars.LevelTexture = Content.Load<Texture2D>("level");
             GVars.Keyframe = Content.Load<Texture2D>("key-frame");
             GVars.Key = Content.Load<Texture2D>("skull_key");
+
 
             // Creating random map
             //GVars.RndMap = new(1, rnd: true);
@@ -188,7 +187,7 @@ namespace _2DGame
                 _spriteBatch.Draw(GVars.Key, new Rectangle(64 * 11 - 10, 64 * 11, 64, 64), Color.White);
             }
 
-            if (!GVars.YouWon)
+            if (GVars.YouWon)
             {
                 _spriteBatch.DrawString(Font, "You Won", new Vector2(64 * 3 + 64, 64 * 5), Color.Black);
                 //_spriteBatch.DrawString(Font, "Enter to restart", new Vector2(64 * 3 - 32, 64 * 7), Color.Black);
